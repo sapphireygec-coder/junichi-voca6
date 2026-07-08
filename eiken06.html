@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英検準1級の語い演習６</title>
+<style>
+  :root{
+    --bg:#12141a;
+    --bg-vignette: radial-gradient(circle at 50% 0%, #1b1f28 0%, #0e1015 70%);
+    --panel:#1b1e26;
+    --panel-edge:#262a34;
+    --ink:#e9e6dc;
+    --ink-dim:#9a9fab;
+    --ink-faint:#5f6472;
+    --gold:#c9a24b;
+    --gold-soft:#8f7635;
+    --gold-glow: rgba(201,162,75,0.35);
+    --yellow:#f5c518;
+    --sapphire:#5b7fd6;
+    --teal:#5f97a0;
+    --red:#b5654f;
+    --green:#7a9d6f;
+    --serif-en:'Times New Roman', Times, 'Georgia', serif;
+    --serif-jp:'游明朝','Yu Mincho','YuMincho','Hiragino Mincho ProN','HiraMinProN-W3',serif;
+    --sans-jp:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    margin:0;
+    padding:0;
+    background:var(--bg);
+    background-image:var(--bg-vignette);
+    color:var(--ink);
+    font-family:var(--sans-jp);
+    min-height:100vh;
+  }
+
+  body{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:32px 16px 64px;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    width:100%;
+    max-width:640px;
+    text-align:center;
+    margin-bottom:22px;
+  }
+
+  .eyebrow{
+    font-family:var(--sans-jp);
+    letter-spacing:0.28em;
+    font-size:11px;
+    color:var(--gold);
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+
+  h1{
+    font-family:var(--serif-jp);
+    font-weight:600;
+    font-size:18px;
+    margin:0 0 6px;
+    color:var(--sapphire);
+    letter-spacing:0.02em;
+  }
+
+  .sub{
+    font-size:12.5px;
+    color:var(--ink-dim);
+    letter-spacing:0.04em;
+  }
+
+  .divider{
+    width:64px;
+    height:1px;
+    background:linear-gradient(90deg, transparent, var(--gold-soft), transparent);
+    margin:16px auto 0;
+  }
+
+  /* ---------- Progress ---------- */
+  .progress-row{
+    width:100%;
+    max-width:640px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:18px;
+  }
+
+  .progress-track{
+    flex:1;
+    height:2px;
+    background:var(--panel-edge);
+    position:relative;
+    border-radius:2px;
+    overflow:hidden;
+  }
+
+  .progress-fill{
+    position:absolute;
+    left:0; top:0; bottom:0;
+    background:var(--gold);
+    transition:width .35s ease;
+  }
+
+  .progress-label{
+    font-size:12px;
+    color:var(--ink-faint);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+  }
+
+  /* ---------- Card Stage ---------- */
+  .stage{
+    width:100%;
+    max-width:640px;
+    perspective:1800px;
+  }
+
+  .card{
+    position:relative;
+    width:100%;
+    transform-style:preserve-3d;
+    transition:transform .6s cubic-bezier(.3,.1,.2,1);
+    cursor:pointer;
+  }
+
+  .card.flipped{
+    transform:rotateY(180deg);
+  }
+
+  .face{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    backface-visibility:hidden;
+    border-radius:14px;
+    background:linear-gradient(160deg, var(--panel) 0%, #171a21 100%);
+    border:1px solid var(--panel-edge);
+    box-shadow:0 20px 40px -20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+    padding:30px 28px 24px;
+    display:flex;
+    flex-direction:column;
+    box-sizing:border-box;
+  }
+
+  .face.back{
+    transform:rotateY(180deg);
+  }
+
+  /* --- top row: number + timer ring --- */
+  .face-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:18px;
+  }
+
+  .qnum{
+    font-family:var(--serif-en);
+    font-size:20px;
+    font-weight:700;
+    color:var(--yellow);
+    letter-spacing:0.06em;
+    text-shadow:0 0 14px rgba(245,197,24,0.25);
+  }
+  .qnum span{
+    color:var(--ink-faint);
+    font-size:13px;
+    font-weight:400;
+    margin-left:5px;
+  }
+
+  .timer-ring-wrap{
+    position:relative;
+    width:46px;
+    height:46px;
+    flex-shrink:0;
+  }
+
+  .timer-ring-wrap svg{
+    transform:rotate(-90deg);
+  }
+
+  .timer-track{
+    fill:none;
+    stroke:var(--panel-edge);
+    stroke-width:3;
+  }
+
+  .timer-arc{
+    fill:none;
+    stroke:var(--gold);
+    stroke-width:3;
+    stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear, stroke .3s;
+  }
+
+  .timer-num{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--serif-en);
+    font-size:13px;
+    color:var(--ink-dim);
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* --- front content --- */
+  .instruction{
+    font-family:var(--sans-jp);
+    font-size:12.5px;
+    color:var(--ink-faint);
+    margin-bottom:14px;
+    letter-spacing:0.03em;
+  }
+
+  .sentence{
+    font-family:var(--serif-en);
+    font-size:23px;
+    line-height:1.62;
+    color:var(--ink);
+    margin-bottom:22px;
+    flex-grow:0;
+  }
+
+  .sentence .blank{
+    display:inline-block;
+    min-width:64px;
+    border-bottom:1.5px solid var(--gold-soft);
+    text-align:center;
+    color:var(--gold);
+  }
+
+  .sentence .speaker{
+    color:var(--teal);
+    font-weight:bold;
+    margin-right:6px;
+  }
+
+  .choices{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px 14px;
+    margin-top:auto;
+  }
+
+  .choice{
+    font-family:var(--serif-en);
+    font-size:18px;
+    color:var(--ink-dim);
+    border:1px solid var(--panel-edge);
+    border-radius:8px;
+    padding:9px 12px;
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    background:rgba(255,255,255,0.012);
+  }
+
+  .choice .num{
+    font-size:12px;
+    color:var(--ink-faint);
+  }
+
+  .choices-back{
+    margin-top:16px;
+    margin-bottom:4px;
+  }
+
+  .choice.is-correct{
+    border-color:var(--gold-soft);
+    color:var(--gold);
+    background:rgba(201,162,75,0.08);
+  }
+
+  .choice.is-correct .num{
+    color:var(--gold);
+  }
+
+  .choice .check{
+    margin-left:auto;
+    color:var(--gold);
+    font-size:14px;
+  }
+
+  .flip-hint{
+    text-align:center;
+    font-size:11px;
+    color:var(--ink-faint);
+    margin-top:18px;
+    letter-spacing:0.06em;
+  }
+
+  /* --- back content --- */
+  .answer-word{
+    font-family:var(--serif-en);
+    font-size:34px;
+    font-weight:700;
+    color:var(--gold);
+    letter-spacing:0.01em;
+    margin-bottom:4px;
+  }
+
+  .answer-meaning{
+    font-family:var(--serif-jp);
+    font-size:17px;
+    color:var(--ink);
+    margin-bottom:18px;
+  }
+
+  .answer-sentence{
+    font-family:var(--serif-en);
+    font-size:19px;
+    line-height:1.6;
+    color:var(--ink-dim);
+    padding-top:16px;
+    border-top:1px solid var(--panel-edge);
+    margin-bottom:auto;
+  }
+
+  .answer-sentence .speaker{
+    color:var(--teal);
+    font-weight:bold;
+    margin-right:6px;
+  }
+
+  .answer-sentence b{
+    color:var(--gold);
+    font-weight:700;
+  }
+
+  .sentence-jp{
+    font-family:var(--serif-jp);
+    font-size:14.5px;
+    line-height:1.8;
+    color:var(--ink-faint);
+    margin-top:8px;
+    margin-bottom:16px;
+  }
+
+  .choice-jp{
+    display:block;
+    font-family:var(--serif-jp);
+    font-size:12px;
+    color:var(--ink-faint);
+    margin-top:2px;
+    line-height:1.4;
+  }
+
+  .choices-back .choice{
+    flex-direction:column;
+    align-items:stretch;
+    gap:0;
+  }
+
+  .choice-head{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    width:100%;
+  }
+
+  .choices-back .choice.is-correct .choice-jp{
+    color:var(--gold-soft);
+  }
+
+  .audio-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:18px;
+  }
+
+  .audio-btn{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-family:var(--sans-jp);
+    font-size:12px;
+    color:var(--ink-dim);
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--panel-edge);
+    border-radius:20px;
+    padding:7px 14px;
+    cursor:pointer;
+  }
+
+  .audio-btn:hover{ border-color:var(--gold-soft); color:var(--ink); }
+
+  .audio-btn.playing{
+    border-color:var(--sapphire);
+    color:var(--ink);
+  }
+  .audio-btn.playing .dot{
+    background:var(--sapphire);
+    box-shadow:0 0 6px var(--sapphire);
+  }
+
+  .audio-btn .dot{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--ink-faint);
+  }
+
+  .audio-status{
+    font-size:11px;
+    color:var(--ink-faint);
+  }
+
+  /* ---------- Controls ---------- */
+  .controls{
+    width:100%;
+    max-width:640px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:22px;
+    gap:10px;
+  }
+
+  .ctrl-btn{
+    font-family:var(--sans-jp);
+    font-size:13px;
+    color:var(--ink-dim);
+    background:var(--panel);
+    border:1px solid var(--panel-edge);
+    border-radius:9px;
+    padding:11px 16px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    transition:border-color .2s, color .2s;
+  }
+
+  .ctrl-btn:hover:not(:disabled){ border-color:var(--gold-soft); color:var(--ink); }
+  .ctrl-btn:disabled{ opacity:0.35; cursor:not-allowed; }
+
+  .ctrl-center{
+    display:flex;
+    gap:8px;
+  }
+
+  .icon-btn{
+    width:40px;height:40px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--panel);
+    border:1px solid var(--panel-edge);
+    color:var(--ink-dim);
+    cursor:pointer;
+  }
+  .icon-btn:hover{ border-color:var(--gold-soft); color:var(--gold); }
+
+  .primary-flip{
+    background:linear-gradient(160deg,#25292f,#1a1d23);
+    border-color:var(--gold-soft);
+    color:var(--gold);
+  }
+
+  footer{
+    margin-top:30px;
+    font-size:10.5px;
+    color:var(--ink-faint);
+    text-align:center;
+    letter-spacing:0.05em;
+  }
+
+  @media (max-width:420px){
+    .sentence{ font-size:20px; }
+    .choices{ grid-template-columns:1fr; }
+    .answer-word{ font-size:28px; }
+    .answer-sentence{ font-size:17px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">EIKEN GRADE PRE-1 &nbsp;·&nbsp; VOCABULARY</div>
+  <h1>英検準1級の語い演習６</h1>
+  <div class="sub">フラッシュカード形式トレーニング　全18問</div>
+  <div class="divider"></div>
+</header>
+
+<div class="progress-row">
+  <span class="progress-label" id="progressLabel">1 / 18</span>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<div class="stage">
+  <div class="card" id="card">
+    <div class="face front">
+      <div class="face-top">
+        <div class="qnum">Q<span id="qNumFront">01</span><span>/ 18</span></div>
+        <div class="timer-ring-wrap">
+          <svg width="46" height="46" viewBox="0 0 46 46">
+            <circle class="timer-track" cx="23" cy="23" r="19"></circle>
+            <circle class="timer-arc" id="timerArc" cx="23" cy="23" r="19"
+              stroke-dasharray="119.4" stroke-dashoffset="0"></circle>
+          </svg>
+          <div class="timer-num" id="timerNum">30</div>
+        </div>
+      </div>
+
+      <div class="instruction">次の空所に入る最も適切な語を選びなさい</div>
+      <div class="sentence" id="sentenceFront"></div>
+      <div class="choices" id="choicesFront"></div>
+      <div class="flip-hint">タップまたはスペースキーで解答を表示</div>
+    </div>
+
+    <div class="face back">
+      <div class="face-top">
+        <div class="qnum">Q<span id="qNumBack">01</span><span>/ 18</span></div>
+        <div class="timer-ring-wrap" style="visibility:hidden;"></div>
+      </div>
+
+      <div class="answer-word" id="answerWord"></div>
+      <div class="answer-meaning" id="answerMeaning"></div>
+      <div class="answer-sentence" id="answerSentence"></div>
+      <div class="sentence-jp" id="sentenceJP"></div>
+
+      <div class="choices choices-back" id="choicesBack"></div>
+
+      <div class="audio-row">
+        <button class="audio-btn" id="audioBtn" type="button">
+          <span class="dot"></span>
+          <span id="audioBtnLabel">音声を再生（選択肢を含む）</span>
+        </button>
+        <span class="audio-status" id="audioStatus"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="controls" id="controlsRow">
+  <button class="ctrl-btn" id="prevBtn">← 前へ</button>
+  <div class="ctrl-center">
+    <div class="icon-btn" id="timerToggle" title="タイマー 一時停止 / 再開">⏸</div>
+    <div class="icon-btn primary-flip" id="flipBtn" title="カードを裏返す">⟲</div>
+  </div>
+  <button class="ctrl-btn" id="nextBtn">次へ →</button>
+</div>
+
+<div class="stage" id="completionStage" style="display:none;">
+  <div class="face" style="position:static; display:flex;">
+    <div class="face-top">
+      <div class="qnum" style="color:var(--sapphire);">COMPLETE</div>
+      <div class="timer-ring-wrap" style="visibility:hidden;"></div>
+    </div>
+    <div class="answer-word" style="font-size:26px;">Volume 6 — Complete!</div>
+    <div class="answer-sentence" id="completionMsg" style="border-top:none; padding-top:0; color:var(--ink); font-size:17px;"></div>
+    <div class="audio-row">
+      <button class="ctrl-btn" id="restartBtn" type="button">↺ Restart this set</button>
+    </div>
+  </div>
+</div>
+
+<footer>30秒タイマーは音声読み上げ機能を追加する際の再生時間の目安として設定しています</footer>
+
+<audio id="player" preload="none"></audio>
+
+<script>
+const DATA = [
+  {
+    num:1,
+    audioFile:'jun1-6-1.mp3', audioStart:0.0, audioEnd:16.8,
+    sentence:'Kevin’s boss believes the need for safety ( &nbsp;&nbsp;&nbsp; ) the time savings that come with taking risks. He would rather deal with delays in construction projects than with careless accidents.',
+    choices:['grasps', 'outweighs', 'declares', 'captivates'],
+    correct:1,
+    meaning:'（重要性などで）上回る、勝る',
+    fullSentence:'Kevin’s boss believes the need for safety <b>outweighs</b> the time savings that come with taking risks.',
+    sentenceJP:'ケビンの上司は、安全性の必要性はリスクを取ることで得られる時間の節約よりも重要だと考えている。彼は、不注意な事故に対処するよりも、建設プロジェクトの遅れに対処する方を選ぶだろう。',
+    choicesJP:['つかむ、理解する', '（重要性などで）上回る、勝る', '宣言する', '魅了する'],
+  },
+  {
+    num:2,
+    audioFile:'jun1-6-1.mp3', audioStart:16.8, audioEnd:35.9,
+    sentence:'The publishers of Nature Lover magazine are worried about its ( &nbsp;&nbsp;&nbsp; ). The number of readers has declined from over 40,000 five years ago to 15,000 today.',
+    choices:['aviation', 'circulation', 'commencement', 'imprisonment'],
+    correct:1,
+    meaning:'発行部数',
+    fullSentence:'The publishers of Nature Lover magazine are worried about its <b>circulation</b>. Readership has declined from 40,000 to 15,000.',
+    sentenceJP:'Nature Lover誌の出版社は発行部数を心配している。読者数は5年前の4万人以上から現在は1万5千人にまで減少した。',
+    choicesJP:['航空', '発行部数', '開始、卒業式', '投獄'],
+  },
+  {
+    num:3,
+    audioFile:'jun1-6-1.mp3', audioStart:35.9, audioEnd:53.6,
+    sentence:'The young politician has a small but ( &nbsp;&nbsp;&nbsp; ) following. His supporters are extremely enthusiastic at his campaign events, and they travel long distances just to hear him speak.',
+    choices:['holistic', 'fanatical', 'mellow', 'illogical'],
+    correct:1,
+    meaning:'熱狂的な',
+    fullSentence:'The young politician has a small but <b>fanatical</b> following. His supporters are extremely enthusiastic.',
+    sentenceJP:'その若い政治家には、小規模だが熱狂的な支持層がいる。支持者たちは彼の選挙活動に非常に熱心で、話を聞くためだけに遠くまで足を運ぶ。',
+    choicesJP:['全体論的な', '熱狂的な', 'まろやかな、穏やかな', '非論理的な'],
+  },
+  {
+    num:4,
+    audioFile:'jun1-6-1.mp3', audioStart:53.6, audioEnd:67.9,
+    sentence:'A ( &nbsp;&nbsp;&nbsp; ) built shelf would have supported Salma’s heavy books, but the cheap one she decided to use broke under the weight.',
+    choices:['loyally', 'fondly', 'sturdily', 'vastly'],
+    correct:2,
+    meaning:'頑丈に',
+    fullSentence:'A <b>sturdily</b> built shelf would have supported Salma’s heavy books, but the cheap one she used broke under the weight.',
+    sentenceJP:'頑丈に作られた棚であればサルマの重い本を支えられただろうが、彼女が使うことにした安物の棚は重さに耐えられず壊れてしまった。',
+    choicesJP:['忠実に', '愛情を込めて', '頑丈に', '大いに、非常に'],
+  },
+  {
+    num:5,
+    audioFile:'jun1-6-1.mp3', audioStart:67.9, audioEnd:82.1,
+    sentence:'The ambassador worked hard to ( &nbsp;&nbsp;&nbsp; ) a close relationship between the two countries so that they would never go to war again.',
+    choices:['tickle', 'swallow', 'litter', 'nurture'],
+    correct:3,
+    meaning:'育む、育成する',
+    fullSentence:'The ambassador worked hard to <b>nurture</b> a close relationship between the two countries.',
+    sentenceJP:'大使は、二度と戦争が起きないよう、両国間の緊密な関係を育むために懸命に努力した。',
+    choicesJP:['くすぐる', '飲み込む', '散らかす', '育む、育成する'],
+  },
+  {
+    num:6,
+    audioFile:'jun1-6-1.mp3', audioStart:82.1, audioEnd:96.3,
+    sentence:'Robert lives in a log cabin in a very ( &nbsp;&nbsp;&nbsp; ) area. The nearest village is more than 90 minutes away by car.',
+    choices:['remote', 'virtual', 'blunt', 'swift'],
+    correct:0,
+    meaning:'人里離れた、へんぴな',
+    fullSentence:'Robert lives in a log cabin in a very <b>remote</b> area. The nearest village is more than 90 minutes away.',
+    sentenceJP:'ロバートはとても人里離れた地域にある丸太小屋に住んでいる。最寄りの村まで車で90分以上かかる。',
+    choicesJP:['人里離れた、へんぴな', '事実上の、仮想の', '鈍い、率直な', '素早い'],
+  },
+  {
+    num:7,
+    audioFile:'jun1-6-1.mp3', audioStart:96.3, audioEnd:110.1,
+    sentence:'Yesterday, Rhett ( &nbsp;&nbsp;&nbsp; ) while working in the garden. When he woke up, his wife and children were standing around him with worried faces.',
+    choices:['diluted', 'fainted', 'persisted', 'corrected'],
+    correct:1,
+    meaning:'気絶した',
+    fullSentence:'Yesterday, Rhett <b>fainted</b> while working in the garden. When he woke up, his family was standing around him.',
+    sentenceJP:'昨日、レットは庭仕事をしている最中に気絶した。目を覚ますと、妻と子どもたちが心配そうな顔で彼を取り囲んでいた。',
+    choicesJP:['薄められた', '気絶した', '固執した、やり続けた', '訂正した'],
+  },
+  {
+    num:8,
+    audioFile:'jun1-6-1.mp3', audioStart:110.1, audioEnd:123.5,
+    sentence:'The writer edited his essay for ( &nbsp;&nbsp;&nbsp; ), making an extra effort to improve the parts where his writing was difficult to understand.',
+    choices:['clarity', 'appetite', 'shelter', 'preference'],
+    correct:0,
+    meaning:'明瞭さ、分かりやすさ',
+    fullSentence:'The writer edited his essay for <b>clarity</b>, making an extra effort to improve the hard-to-understand parts.',
+    sentenceJP:'その作家は、分かりにくい箇所を改善しようと特に力を入れながら、文章を明瞭にするためにエッセイを編集した。',
+    choicesJP:['明瞭さ', '食欲', '避難所', '好み'],
+  },
+  {
+    num:9,
+    audioFile:'jun1-6-1.mp3', audioStart:123.5, audioEnd:136.6,
+    sentence:'The company had a ( &nbsp;&nbsp;&nbsp; ) in sales last year, so it has launched a more aggressive advertising campaign to regain customers.',
+    choices:['suite', 'coma', 'dip', 'ramp'],
+    correct:2,
+    meaning:'（一時的な）落ち込み、下降',
+    fullSentence:'The company had a <b>dip</b> in sales last year, so it launched a more aggressive advertising campaign.',
+    sentenceJP:'その会社は昨年、売上の落ち込みがあったため、より積極的な広告キャンペーンを開始した。',
+    choicesJP:['一続きの部屋、組', '昏睡状態', '（一時的な）落ち込み、下降', '傾斜路、段階的な増加'],
+  },
+  {
+    num:10,
+    audioFile:'jun1-6-1.mp3', audioStart:136.6, audioEnd:150.0,
+    sentence:'Randy was known for his ( &nbsp;&nbsp;&nbsp; ) lying, so no one believed his stories about his incredible trip even though they were true.',
+    choices:['miserly', 'sacred', 'habitual', 'stale'],
+    correct:2,
+    meaning:'習慣的な、常習の',
+    fullSentence:'Randy was known for his <b>habitual</b> lying, so no one believed his stories, even though they were true.',
+    sentenceJP:'ランディは常習的に嘘をつくことで知られていたので、彼の旅行の話が本当であったにもかかわらず、誰も信じなかった。',
+    choicesJP:['けちな', '神聖な', '習慣的な、常習の', '新鮮でない、古臭い'],
+  },
+  {
+    num:11,
+    audioFile:'jun1-6-2.mp3', audioStart:0.0, audioEnd:22.5,
+    sentence:'As a young man, Stephano was extremely ( &nbsp;&nbsp;&nbsp; ). He was so concerned about his appearance that he spent nearly all his salary on clothes, shoes, and skin products.',
+    choices:['crafty', 'inopportune', 'unsound', 'vain'],
+    correct:3,
+    meaning:'うぬぼれた、見栄っ張りな',
+    fullSentence:'As a young man, Stephano was extremely <b>vain</b>. He spent nearly all his salary on clothes, shoes, and skin products.',
+    sentenceJP:'若い頃、ステファノは非常にうぬぼれが強かった。自分の外見を気にするあまり、給料のほとんどを衣服、靴、スキンケア用品に使っていた。',
+    choicesJP:['狡猾な', '時機の悪い', '不健全な', 'うぬぼれた、見栄っ張りな'],
+  },
+  {
+    num:12,
+    audioFile:'jun1-6-2.mp3', audioStart:22.5, audioEnd:41.8,
+    sentence:'Although Suzanne was puzzled by the bright blue lights in the night sky, as a scientist, she knew there had to be a ( &nbsp;&nbsp;&nbsp; ) explanation for them.',
+    choices:['steep', 'lawless', 'rational', 'downcast'],
+    correct:2,
+    meaning:'合理的な',
+    fullSentence:'As a scientist, Suzanne knew there had to be a <b>rational</b> explanation for the bright blue lights.',
+    sentenceJP:'スザンヌは夜空に光る青い光に戸惑いながらも、科学者として、それには必ず合理的な説明があるはずだと分かっていた。',
+    choicesJP:['急な', '無法な', '合理的な', '落胆した'],
+  },
+  {
+    num:13,
+    audioFile:'jun1-6-2.mp3', audioStart:41.8, audioEnd:59.2,
+    sentence:'The ( &nbsp;&nbsp;&nbsp; ) members at the college have a great reputation, and young people come from across the country to be taught by them.',
+    choices:['custody', 'faculty', 'retainer', 'seizure'],
+    correct:1,
+    meaning:'（大学の）教員団',
+    fullSentence:'The <b>faculty</b> members at the college have a great reputation, and students come from across the country.',
+    sentenceJP:'その大学の教員陣は非常に評判が高く、全国各地から若者たちが彼らに教わるために集まってくる。',
+    choicesJP:['保護、監護権', '（大学の）教員団', '顧問料、留保する人', '押収、発作'],
+  },
+  {
+    num:14,
+    audioFile:'jun1-6-2.mp3', audioStart:59.2, audioEnd:79.3,
+    sentence:'When Bert and Eva were asked how they have been able to ( &nbsp;&nbsp;&nbsp; ) their relationship for 40 years, they said the key is to always communicate honestly with each other.',
+    choices:['dispatch', 'mistrust', 'impair', 'sustain'],
+    correct:3,
+    meaning:'維持する、持続させる',
+    fullSentence:'Bert and Eva said the key to being able to <b>sustain</b> their relationship for 40 years is honest communication.',
+    sentenceJP:'バートとエヴァは、40年間関係を維持できた秘訣を尋ねられたとき、お互いに常に正直にコミュニケーションを取ることだと答えた。',
+    choicesJP:['派遣する、急送する', '不信感を抱く', '損なう', '維持する、持続させる'],
+  },
+  {
+    num:15,
+    audioFile:'jun1-6-2.mp3', audioStart:79.3, audioEnd:97.7,
+    sentence:'<span class="speaker">A:</span>I can’t believe you ( &nbsp;&nbsp;&nbsp; ) the ending of the movie!<br><span class="speaker">B:</span>Sorry, I thought you had seen it before.',
+    choices:['phased out', 'shook up', 'burned off', 'gave away'],
+    correct:3,
+    meaning:'（秘密などを）漏らした、ばらした',
+    fullSentence:'A: I can’t believe you <b>gave away</b> the ending of the movie!<br>B: Sorry, I thought you had seen it before.',
+    sentenceJP:'A：あなたが映画の結末をばらしちゃうなんて信じられない！<br>B：ごめん、もう見たことあるんだと思ってた。',
+    choicesJP:['段階的に廃止した', '揺さぶった、驚かせた', '焼き払った', '（秘密などを）漏らした、ばらした'],
+  },
+  {
+    num:16,
+    audioFile:'jun1-6-2.mp3', audioStart:97.7, audioEnd:121.9,
+    sentence:'Daisuke’s parents are very strict, and it can be difficult for him to ( &nbsp;&nbsp;&nbsp; ) their expectations. He needs to spend a lot of time studying to get grades that will satisfy them.',
+    choices:['live up to', 'hold off on', 'meet up with', 'break in on'],
+    correct:0,
+    meaning:'（期待などに）応える',
+    fullSentence:'Daisuke’s parents are very strict, and it can be difficult for him to <b>live up to</b> their expectations.',
+    sentenceJP:'ダイスケの両親はとても厳しく、彼にとって両親の期待に応えるのは大変なことがある。両親が満足するような成績を取るには、多くの時間を勉強に費やす必要がある。',
+    choicesJP:['（期待などに）応える', '〜を保留する、先延ばしにする', '〜と落ち合う', '〜に割り込む、邪魔をする'],
+  },
+  {
+    num:17,
+    audioFile:'jun1-6-2.mp3', audioStart:121.9, audioEnd:142.5,
+    sentence:'Though some of the other students found the class difficult, Deepak ( &nbsp;&nbsp;&nbsp; ) it easily. He was able to get a very high grade despite hardly studying at all.',
+    choices:['happened upon', 'stayed off', 'sailed through', 'glared at'],
+    correct:2,
+    meaning:'楽々と乗り切る、難なくやり遂げる',
+    fullSentence:'Though some students found the class difficult, Deepak <b>sailed through</b> it easily, getting a very high grade despite hardly studying.',
+    sentenceJP:'他の学生の中にはその授業を難しいと感じる者もいたが、ディーパックは楽々と乗り切った。ほとんど勉強しなかったにもかかわらず、非常に高い成績を取ることができた。',
+    choicesJP:['偶然出会った、見つけた', '〜を避けた、遠ざかった', '楽々と乗り切った', '〜をにらみつけた'],
+  },
+  {
+    num:18,
+    audioFile:'jun1-6-2.mp3', audioStart:142.5, audioEnd:163.5,
+    sentence:'Mark began his speech with jokes and funny stories to ( &nbsp;&nbsp;&nbsp; ) his audience. Once they were listening carefully, he began talking about what he really wanted to say.',
+    choices:['scratch out', 'win over', 'rack up', 'indulge in'],
+    correct:1,
+    meaning:'（人の）心をつかむ、味方につける',
+    fullSentence:'Mark began his speech with jokes and funny stories to <b>win over</b> his audience.',
+    sentenceJP:'マークは聴衆の心をつかむために、ジョークや面白い話でスピーチを始めた。彼らが注意深く聞くようになると、彼は本当に伝えたかったことを話し始めた。',
+    choicesJP:['かき消す、削除する', '（人の）心をつかむ、味方につける', '（得点などを）積み重ねる', '〜にふける、〜を楽しむ'],
+  },
+];
+
+const TOTAL = DATA.length;
+let idx = 0;
+let flipped = false;
+let timerVal = 30;
+let timerInterval = null;
+let timerRunning = true;
+const RADIUS = 19;
+const CIRC = 2 * Math.PI * RADIUS;
+
+const cardEl = document.getElementById('card');
+const sentenceFront = document.getElementById('sentenceFront');
+const choicesFront = document.getElementById('choicesFront');
+const choicesBack = document.getElementById('choicesBack');
+const qNumFront = document.getElementById('qNumFront');
+const qNumBack = document.getElementById('qNumBack');
+const answerWord = document.getElementById('answerWord');
+const answerMeaning = document.getElementById('answerMeaning');
+const answerSentence = document.getElementById('answerSentence');
+const sentenceJPEl = document.getElementById('sentenceJP');
+const progressFill = document.getElementById('progressFill');
+const progressLabel = document.getElementById('progressLabel');
+const timerArc = document.getElementById('timerArc');
+const timerNum = document.getElementById('timerNum');
+const timerToggle = document.getElementById('timerToggle');
+const audioBtn = document.getElementById('audioBtn');
+const audioBtnLabel = document.getElementById('audioBtnLabel');
+const audioStatus = document.getElementById('audioStatus');
+const player = document.getElementById('player');
+
+function pad(n){ return n.toString().padStart(2,'0'); }
+
+function renderCard(){
+  const item = DATA[idx];
+  flipped = false;
+  cardEl.classList.remove('flipped');
+
+  qNumFront.textContent = pad(item.num);
+  qNumBack.textContent = pad(item.num);
+  sentenceFront.innerHTML = item.sentence;
+
+  const letters = ['(1)','(2)','(3)','(4)'];
+  choicesFront.innerHTML = item.choices.map((c,i)=>
+    `<div class="choice"><span class="num">${letters[i]}</span>${c}</div>`
+  ).join('');
+  choicesBack.innerHTML = item.choices.map((c,i)=>
+    `<div class="choice${i===item.correct?' is-correct':''}">
+       <div class="choice-head"><span class="num">${letters[i]}</span>${c}${i===item.correct?'<span class="check">✓</span>':''}</div>
+       <span class="choice-jp">${item.choicesJP[i]}</span>
+     </div>`
+  ).join('');
+
+  answerWord.textContent = item.choices[item.correct];
+  answerMeaning.textContent = item.meaning;
+  answerSentence.innerHTML = item.fullSentence;
+  sentenceJPEl.innerHTML = item.sentenceJP.replace(/\n/g, '<br>');
+
+  progressLabel.textContent = `${idx+1} / ${TOTAL}`;
+  progressFill.style.width = `${((idx+1)/TOTAL)*100}%`;
+
+  document.getElementById('prevBtn').disabled = idx === 0;
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.textContent = idx === TOTAL - 1 ? 'Finish ✓' : '次へ →';
+  nextBtn.disabled = false;
+
+  audioStatus.textContent = '';
+  player.pause();
+  currentClipEnd = null;
+  audioBtn.classList.remove('playing');
+  audioBtnLabel.textContent = '音声を再生';
+  resetTimer();
+
+  // let the DOM update with new text, then size the card to fit whichever
+  // face (front or back) needs more room, so nothing gets cut off or hidden
+  requestAnimationFrame(syncCardHeight);
+}
+
+const faceFront = document.querySelector('.face.front');
+const faceBack = document.querySelector('.face.back');
+
+function syncCardHeight(){
+  const h = Math.max(faceFront.scrollHeight, faceBack.scrollHeight);
+  cardEl.style.height = h + 'px';
+}
+
+window.addEventListener('resize', ()=> requestAnimationFrame(syncCardHeight));
+
+function resetTimer(){
+  clearInterval(timerInterval);
+  timerVal = 30;
+  updateTimerDisplay();
+  timerRunning = true;
+  timerToggle.textContent = '⏸';
+  timerInterval = setInterval(tick, 1000);
+}
+
+function tick(){
+  if(!timerRunning) return;
+  timerVal -= 1;
+  if(timerVal <= 0){
+    timerVal = 0;
+    updateTimerDisplay();
+    clearInterval(timerInterval);
+    if(!flipped) flipCard();
+    return;
+  }
+  updateTimerDisplay();
+}
+
+function updateTimerDisplay(){
+  timerNum.textContent = timerVal;
+  const offset = CIRC * (1 - timerVal/30);
+  timerArc.style.strokeDasharray = CIRC;
+  timerArc.style.strokeDashoffset = offset;
+  timerArc.style.stroke = timerVal <= 5 ? 'var(--red)' : 'var(--gold)';
+}
+
+function flipCard(){
+  flipped = !flipped;
+  cardEl.classList.toggle('flipped', flipped);
+}
+
+function goNext(){
+  if(idx < TOTAL - 1){
+    idx++;
+    renderCard();
+  } else {
+    showCompletion();
+  }
+}
+function goPrev(){
+  if(idx > 0){ idx--; renderCard(); }
+}
+
+const COMPLETION_MESSAGES = [
+  "Eighteen down, and every one of them a word you can now actually use \u2014 not just recognize. That's the difference between passing a test and owning a language. Volume 7 is next whenever you're ready.",
+  "Solid work. You just moved eighteen advanced words from 'vaguely familiar' to 'mine.' The Pre-1 vocabulary list gets tougher from here \u2014 which means Volume 7 is exactly where the real progress happens.",
+  "That's Volume 6 wrapped. Momentum like this is what actually gets people across the finish line on Eiken Pre-1. Keep the streak alive \u2014 Volume 7 is waiting.",
+  "Nice finish. Eighteen more words locked in, eighteen fewer surprises on test day. Ready to keep the run going with Volume 7?"
+];
+
+function showCompletion(){
+  clearInterval(timerInterval);
+  document.querySelector('.stage:not(#completionStage)').style.display = 'none';
+  document.getElementById('controlsRow').style.display = 'none';
+  document.getElementById('completionStage').style.display = 'block';
+  const msg = COMPLETION_MESSAGES[Math.floor(Math.random()*COMPLETION_MESSAGES.length)];
+  document.getElementById('completionMsg').textContent = msg;
+  progressLabel.textContent = `${TOTAL} / ${TOTAL}`;
+  progressFill.style.width = '100%';
+}
+
+function restartSet(){
+  idx = 0;
+  document.getElementById('completionStage').style.display = 'none';
+  document.querySelector('.stage:not(#completionStage)').style.display = 'block';
+  document.getElementById('controlsRow').style.display = 'flex';
+  renderCard();
+}
+
+cardEl.addEventListener('click', flipCard);
+document.getElementById('flipBtn').addEventListener('click', (e)=>{ e.stopPropagation(); flipCard(); });
+document.getElementById('nextBtn').addEventListener('click', goNext);
+document.getElementById('prevBtn').addEventListener('click', goPrev);
+document.getElementById('restartBtn').addEventListener('click', restartSet);
+
+timerToggle.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  timerRunning = !timerRunning;
+  timerToggle.textContent = timerRunning ? '⏸' : '▶';
+});
+
+document.addEventListener('keydown', (e)=>{
+  if(e.code === 'Space'){ e.preventDefault(); flipCard(); }
+  if(e.code === 'ArrowRight'){ goNext(); }
+  if(e.code === 'ArrowLeft'){ goPrev(); }
+});
+
+let currentClipEnd = null;
+let loadedFile = null;
+
+function stopClip(){
+  player.pause();
+  currentClipEnd = null;
+  audioBtn.classList.remove('playing');
+  audioBtnLabel.textContent = '音声を再生';
+  audioStatus.textContent = '';
+}
+
+audioBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+
+  // toggle: if this clip is already playing, pressing again pauses it
+  if(!player.paused){
+    stopClip();
+    return;
+  }
+
+  const item = DATA[idx];
+  currentClipEnd = item.audioEnd;
+  const needsLoad = loadedFile !== item.audioFile;
+
+  audioBtnLabel.textContent = '再生中…';
+  audioStatus.textContent = '';
+  audioBtn.classList.add('playing');
+
+  if(needsLoad){
+    loadedFile = item.audioFile;
+    player.src = `audio/${item.audioFile}`;
+    player.muted = true; // play silently until we can seek to the exact start point
+    player.addEventListener('loadedmetadata', function onMeta(){
+      player.currentTime = item.audioStart;
+    }, { once:true });
+    player.addEventListener('seeked', function onSeek(){
+      player.muted = false;
+    }, { once:true });
+    player.addEventListener('error', function onErr(){
+      audioStatus.textContent = '音声ファイルが見つかりません（パスをご確認ください）';
+      audioBtnLabel.textContent = '音声を再生';
+      audioBtn.classList.remove('playing');
+    }, { once:true });
+  } else {
+    player.currentTime = item.audioStart;
+  }
+
+  // play() is called synchronously, in direct response to the tap/click,
+  // which is required for playback to be allowed on iPhone/Safari and most mobile browsers.
+  const playPromise = player.play();
+  if(playPromise && playPromise.catch){
+    playPromise.catch(()=>{
+      audioBtnLabel.textContent = '音声を再生';
+      audioBtn.classList.remove('playing');
+      audioStatus.textContent = 'もう一度タップして再生してください';
+      player.muted = false;
+    });
+  }
+});
+
+// stop exactly at the end of this question's clip
+player.addEventListener('timeupdate', ()=>{
+  if(currentClipEnd !== null && player.currentTime >= currentClipEnd){
+    stopClip();
+  }
+});
+player.addEventListener('ended', stopClip);
+
+renderCard();
+</script>
+
+</body>
+</html>
